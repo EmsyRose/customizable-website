@@ -1,0 +1,368 @@
+<!--
+Customizable Website Base
+File: customizable-website-base.html
+
+How to use:
+- Open this file in a browser to preview.
+- Edit the CSS variables in :root to change colors, spacing, and type scale.
+- Replace placeholder text, images, and links with your content.
+- Add/remove sections as needed. JavaScript controls mobile menu, theme toggle, and a demo modal.
+
+Features included:
+- Responsive header + mobile menu
+- Hero with CTA
+- Features grid
+- Responsive image + text section
+- Pricing cards (skeleton)
+- Contact form (no backend) with basic validation
+- Modal component
+- Dark/light theme toggle using CSS variables
+- Small utilities for easy customization
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Customizable website base template" />
+  <title>Customizable Website Base</title>
+  <!-- Favicon placeholder -->
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+
+  <style>
+    /* ---------- Theme variables (edit these) ---------- */
+    :root{
+      --bg:  #f7f8fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --text:#0f172a;
+      --accent:#2563eb; /* main brand color */
+      --accent-2:#7c3aed;
+      --radius:12px;
+      --glass: rgba(255,255,255,0.6);
+      --gap: 1.25rem;
+      --max-width: 1100px;
+      --shadow: 0 6px 18px rgba(16,24,40,0.08);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      --sans: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+
+    /* Dark theme overrides applied by .dark-theme on <html> */
+    .dark-theme{
+      --bg:#071029;
+      --card:#07182a;
+      --muted:#9aa5b1;
+      --text:#e6eef6;
+      --glass: rgba(255,255,255,0.03);
+      --shadow: 0 8px 30px rgba(2,6,23,0.6);
+    }
+
+    /* ---------- Base reset & layout ---------- */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background:linear-gradient(180deg,var(--bg),#ffffff00 60%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
+      padding:2rem 1rem;
+      display:flex;
+      justify-content:center;
+    }
+
+    .container{
+      width:100%;
+      max-width:var(--max-width);
+      margin:0 auto;
+    }
+
+    /* ---------- Utility classes ---------- */
+    .row{display:flex;gap:var(--gap)}
+    .col{flex:1}
+    .center{display:flex;align-items:center;justify-content:center}
+    .btn{display:inline-block;padding:0.6rem 1rem;border-radius:10px;background:var(--accent);color:white;text-decoration:none;font-weight:600;box-shadow:var(--shadow);}
+    .btn.secondary{background:transparent;border:1px solid rgba(15,23,42,0.06);color:var(--text)}
+    .card{background:var(--card);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+
+    h1,h2,h3{margin:0 0 0.5rem 0}
+    p{margin:0 0 1rem 0;color:var(--muted)}
+
+    /* ---------- Header ---------- */
+    header{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0}
+    .brand{display:flex;gap:.75rem;align-items:center}
+    .brand .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:inline-block}
+    nav{display:flex;gap:1rem;align-items:center}
+    nav a{color:var(--text);text-decoration:none;padding:0.5rem;border-radius:8px}
+    nav a:hover{background:var(--glass)}
+    .mobile-menu-btn{display:none;border:none;background:transparent;padding:.5rem;font-size:1.1rem}
+
+    /* ---------- Hero ---------- */
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:2rem;align-items:center;padding:2rem 0}
+    .hero .eyebrow{font-weight:700;color:var(--accent-2);letter-spacing:0.06em;margin-bottom:.5rem}
+    .hero .lead{font-size:clamp(1.5rem,2.5vw,2.25rem);margin-bottom:1rem}
+    .hero .sub{color:var(--muted);max-width:56ch}
+    .hero-visual{border-radius:16px;overflow:hidden;background:linear-gradient(180deg,var(--accent),var(--accent-2));min-height:260px;display:flex;align-items:center;justify-content:center;color:white}
+
+    /* ---------- Features grid ---------- */
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:2rem 0}
+    .feature{padding:1rem;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);}
+    .feature h3{font-size:1.05rem}
+
+    /* ---------- Two-column section ---------- */
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;margin:2rem 0}
+    .split img{width:100%;height:auto;border-radius:12px;display:block}
+
+    /* ---------- Pricing / Cards ---------- */
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:2rem 0}
+    .card .price{font-weight:800;font-size:1.5rem}
+
+    /* ---------- Footer ---------- */
+    footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid rgba(15,23,42,0.04);color:var(--muted)}
+
+    /* ---------- Modal ---------- */
+    .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.5);z-index:40}
+    .modal{width:min(720px,95%);background:var(--card);padding:1.25rem;border-radius:14px}
+
+    /* ---------- Form ---------- */
+    input,textarea{width:100%;padding:.6rem;border-radius:8px;border:1px solid rgba(15,23,42,0.06);font-family:var(--sans)}
+
+    /* ---------- Responsive ---------- */
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr;}
+      .split{grid-template-columns:1fr}
+      nav{display:none}
+      .mobile-menu-btn{display:block}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden></div>
+        <div>
+          <div style="font-weight:700">Your Brand</div>
+          <div style="font-size:.8rem;color:var(--muted);">Tagline goes here</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+        <button class="btn" id="open-modal">Get started</button>
+        <button title="Toggle theme" id="theme-toggle" style="margin-left:.5rem;padding:.45rem;border-radius:8px">🌙</button>
+      </nav>
+
+      <button class="mobile-menu-btn" id="mobile-btn" aria-label="Open menu">☰</button>
+    </header>
+
+    <!-- Mobile nav (appears on small screens) -->
+    <div id="mobile-nav" class="card" style="display:none;margin-top:.75rem">
+      <a href="#features">Features</a><br>
+      <a href="#pricing">Pricing</a><br>
+      <a href="#contact">Contact</a>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div>
+        <div class="eyebrow">New — Launch-ready</div>
+        <h1 class="lead">A lightweight, fully customizable website starter</h1>
+        <p class="sub">This template is made to be edited. Change the theme colors, swap sections, plug in your images, or convert to a static site generator or framework of your choice.</p>
+
+        <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+          <a class="btn" href="#contact">Start free</a>
+          <a class="btn secondary" href="#features">See features</a>
+        </div>
+
+        <div class="features" id="features" style="margin-top:1.5rem">
+          <div class="feature card">
+            <h3>Fast to edit</h3>
+            <p>Clear structure and comments make it easy to update content and styles.</p>
+          </div>
+          <div class="feature card">
+            <h3>Responsive</h3>
+            <p>Designed to look good on phones, tablets and desktops out of the box.</p>
+          </div>
+          <div class="feature card">
+            <h3>Themeable</h3>
+            <p>Adjust CSS variables to quickly switch colors and scale.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual card">
+        <div>
+          <div style="font-weight:700;font-size:1.25rem">Beautiful visuals</div>
+          <div style="margin-top:.5rem;opacity:.9">Replace this block with an image, video, or embed.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Split content with image -->
+    <section class="split">
+      <div>
+        <h2>Built for customization</h2>
+        <p>You can re-arrange sections, duplicate the cards, and swap the visual blocks. Use this base as a marketing page, product landing, or small business site.</p>
+        <ul style="color:var(--muted);">
+          <li>Clear variable-driven theme</li>
+          <li>Accessible components (keyboard + screen reader friendly)</li>
+          <li>Simple JS to get you started</li>
+        </ul>
+      </div>
+      <div>
+        <img src="https://via.placeholder.com/800x520.png?text=Replace+me" alt="Placeholder" />
+      </div>
+    </section>
+
+    <!-- Pricing / cards -->
+    <section id="pricing">
+      <h2>Pricing</h2>
+      <p class="sub">Simple price tiers to match your project.</p>
+
+      <div class="cards">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h3>Starter</h3>
+              <div class="price">Free</div>
+            </div>
+          </div>
+          <p>Basic features to test and ship quickly.</p>
+          <a class="btn" href="#contact">Choose</a>
+        </div>
+
+        <div class="card">
+          <h3>Pro</h3>
+          <div class="price">$12/mo</div>
+          <p>Advanced features and priority support.</p>
+          <a class="btn" href="#contact">Choose</a>
+        </div>
+
+        <div class="card">
+          <h3>Enterprise</h3>
+          <div class="price">Custom</div>
+          <p>Custom integrations and SLAs for teams.</p>
+          <a class="btn" href="#contact">Contact us</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="card" style="margin-top:1.5rem">
+      <h2>Contact</h2>
+      <p class="sub">Send us a message. This form is a front-end demo — connect to your backend or a Form service.</p>
+      <form id="contact-form" style="display:grid;gap:.6rem;max-width:620px">
+        <input type="text" id="name" placeholder="Your name" required />
+        <input type="email" id="email" placeholder="Email address" required />
+        <textarea id="message" rows="4" placeholder="Message" required></textarea>
+        <div style="display:flex;gap:.6rem">
+          <button type="submit" class="btn">Send message</button>
+          <button type="button" class="btn secondary" id="reset-form">Clear</button>
+        </div>
+        <div id="form-status" style="color:var(--muted);font-size:.95rem"></div>
+      </form>
+    </section>
+
+    <footer class="center">
+      <div style="max-width:var(--max-width);width:100%;display:flex;justify-content:space-between;align-items:center">
+        <div style="color:var(--muted)">© <span id="year"></span> Your Brand</div>
+        <div style="color:var(--muted)">Built with ❤️ — edit freely</div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal backdrop -->
+  <div id="modal" class="modal-backdrop">
+    <div class="modal">
+      <h3>Get started</h3>
+      <p class="sub">This is a demo modal. Replace with your signup flow or embed code.</p>
+      <div style="display:flex;gap:.5rem;margin-top:1rem">
+        <a class="btn" href="#contact">Contact sales</a>
+        <button class="btn secondary" id="close-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Small interactive helpers — edit or remove as desired
+    const mobileBtn = document.getElementById('mobile-btn');
+    const mobileNav = document.getElementById('mobile-nav');
+    const themeToggle = document.getElementById('theme-toggle');
+    const openModal = document.getElementById('open-modal');
+    const modal = document.getElementById('modal');
+    const closeModal = document.getElementById('close-modal');
+    const year = document.getElementById('year');
+    const form = document.getElementById('contact-form');
+    const formStatus = document.getElementById('form-status');
+    const resetForm = document.getElementById('reset-form');
+
+    // set year
+    year.textContent = new Date().getFullYear();
+
+    // mobile menu toggle
+    mobileBtn && mobileBtn.addEventListener('click', ()=>{
+      mobileNav.style.display = mobileNav.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // theme toggle (persist in localStorage)
+    function applyTheme(theme){
+      if(theme === 'dark') document.documentElement.classList.add('dark-theme');
+      else document.documentElement.classList.remove('dark-theme');
+      localStorage.setItem('site-theme', theme);
+    }
+    const savedTheme = localStorage.getItem('site-theme') || 'light';
+    applyTheme(savedTheme);
+    themeToggle && themeToggle.addEventListener('click', () => {
+      const active = document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
+      applyTheme(active === 'dark' ? 'light' : 'dark');
+    });
+
+    // modal handlers
+    openModal && openModal.addEventListener('click', ()=>{ modal.style.display = 'flex'; });
+    closeModal && closeModal.addEventListener('click', ()=>{ modal.style.display = 'none'; });
+    modal && modal.addEventListener('click', (e)=>{ if(e.target === modal) modal.style.display = 'none'; });
+
+    // basic front-end form handling
+    form && form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const data = {
+        name: form.querySelector('#name').value.trim(),
+        email: form.querySelector('#email').value.trim(),
+        message: form.querySelector('#message').value.trim(),
+      };
+      // basic validation
+      if(!data.name || !data.email || !data.message){
+        formStatus.textContent = 'Please fill in all fields.';
+        return;
+      }
+      formStatus.textContent = 'Sending...';
+
+      // Demo behaviour: simulate async request then show success. Replace with your fetch to backend or third-party form endpoint.
+      setTimeout(()=>{
+        formStatus.textContent = 'Thanks! We received your message (demo).';
+        form.reset();
+      }, 900);
+    });
+
+    resetForm && resetForm.addEventListener('click', ()=>{ form.reset(); formStatus.textContent=''; });
+
+    // Accessibility: close modal with Escape
+    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ modal.style.display = 'none'; mobileNav.style.display = 'none'; } });
+
+    // Helper: quickly update theme colors from console
+    window.setThemeColors = (colors)=>{
+      Object.entries(colors).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
+    };
+
+    /* Example usage in browser console to change accent color:
+       setThemeColors({'--accent':'#ff6b6b','--accent-2':'#ff9a9a'})
+    */
+  </script>
+</body>
+</html>
